@@ -1,0 +1,18 @@
+{
+  "Resources": {
+    "acl2d82334a": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpc8fc10be8"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "BastionACL"
+          }
+        ]
+      }
+    }
+  }
+}
