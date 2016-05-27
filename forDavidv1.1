@@ -2,14 +2,79 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "This template create a web server in a new VPC",
   "Parameters": {
-    "Whatthehell?": {
+    "Whatthehell": {
       "Description": "Please select which stack you want to be created for you",
       "Type": "String",
-      "Default": "One Linux Instance, only SSH",
+      "Default": "A Linux Instance with HTTP Server running",
       "AllowedValues": [
-        "One Linux Instance, only SSH",
-        "One Linux Instance, SSH and HTTP"
+        "A basic Linux Instance",
+        "A Linux Instance with HTTP Server running"
       ]
+    },
+    "KeyPairName": {
+      "Description": "Name of an existing EC2 KeyPair:",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "InstanceType": {
+      "Description": "EC2 instance type",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": [
+        "t2.nano",
+        "t2.micro",
+        "t2.small",
+        "t2.medium",
+        "t2.large",
+        "m1.small",
+        "m1.medium",
+        "m1.large",
+        "m1.xlarge",
+        "m2.xlarge",
+        "m2.2xlarge",
+        "m2.4xlarge",
+        "m3.medium",
+        "m3.large",
+        "m3.xlarge",
+        "m3.2xlarge",
+        "m4.large",
+        "m4.xlarge",
+        "m4.2xlarge",
+        "m4.4xlarge",
+        "m4.10xlarge",
+        "c1.medium",
+        "c1.xlarge",
+        "c3.large",
+        "c3.xlarge",
+        "c3.2xlarge",
+        "c3.4xlarge",
+        "c3.8xlarge",
+        "c4.large",
+        "c4.xlarge",
+        "c4.2xlarge",
+        "c4.4xlarge",
+        "c4.8xlarge",
+        "g2.2xlarge",
+        "g2.8xlarge",
+        "r3.large",
+        "r3.xlarge",
+        "r3.2xlarge",
+        "r3.4xlarge",
+        "r3.8xlarge",
+        "i2.xlarge",
+        "i2.2xlarge",
+        "i2.4xlarge",
+        "i2.8xlarge",
+        "d2.xlarge",
+        "d2.2xlarge",
+        "d2.4xlarge",
+        "d2.8xlarge",
+        "hi1.4xlarge",
+        "hs1.8xlarge",
+        "cr1.8xlarge",
+        "cc2.8xlarge",
+        "cg1.4xlarge"
+      ],
+      "ConstraintDescription": "Must be a valid EC2 instance type."
     },
     "Location": {
       "Description": "The IP range where the clients are coming from",
@@ -429,7 +494,7 @@
     "CFNRolePolicy": {
       "Type": "AWS::IAM::Policy",
       "Properties": {
-        "PolicyName": "MehdiPolicy",
+        "PolicyName": "S3ReadOnlyPolicy1",
         "PolicyDocument": {
           "Statement": [
             {
@@ -470,31 +535,28 @@
         }
       }
     },
-    "WebServerCustomVPC": {
+    "EC2WebServer": {
       "DependsOn": "RouteVPCAny",
       "CreationPolicy": {
         "ResourceSignal": {
-          "Timeout": "PT30M"
+          "Count": "1",
+          "Timeout": "PT10M"
         }
       },
       "Metadata": {
         "AWS::CloudFormation::Init": {
-          "base": {
+          "installation_steps": {
             "packages": {
               "yum": {
                 "httpd": []
               }
             }
           },
-          "cloudformer": {
+          "configuration_steps": {
             "commands": {
-              "01_install_cloudformer": {
-                "command": "/home/ec2-user/setup_cloudformer &> /var/log/setup_cloudformer.log",
-                "cwd": "/home/ec2-user/cloudformer"
-              },
-              "02_setup_boot": {
-                "command": "echo '/usr/bin/cloudformer' >> /etc/rc.local",
-                "cwd": "/"
+              "01_touch_a_test_file": {
+                "command": "echo test > test.txt",
+                "cwd": "/tmp"
               }
             },
             "files": {
@@ -522,7 +584,12 @@
               }
             }
           },
-          "configSets": {}
+          "configSets": {
+            "ConfigSet1": [
+              "installation_steps",
+              "configuration_steps"
+            ]
+          }
         },
         "AWS::CloudFormation::Designer": {
           "id": "f338c1a2-2cd8-48fb-bcbd-22c997b121cd"
@@ -547,7 +614,12 @@
             }
           ]
         },
-        "InstanceType": "t2.micro",
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "KeyName": {
+          "Ref": "KeyPairName"
+        },
         "SubnetId": {
           "Ref": "VPCSubnet"
         },
@@ -568,8 +640,8 @@
                 {
                   "Ref": "AWS::StackId"
                 },
-                "         --resource WebServerCustomVPC ",
-                "         --configsets full_install ",
+                "         --resource EC2WebServer ",
+                "         --configsets ConfigSet1 ",
                 "         --region ",
                 {
                   "Ref": "AWS::Region"
@@ -580,7 +652,7 @@
                 {
                   "Ref": "AWS::StackId"
                 },
-                "         --resource WebServerCustomVPC ",
+                "         --resource EC2WebServer ",
                 "         --region ",
                 {
                   "Ref": "AWS::Region"
@@ -596,7 +668,7 @@
     "WebServerSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
-        "GroupDescription": "Enable HTTPS access via port 22 and 80",
+        "GroupDescription": "Enable access to port 22 and 80",
         "VpcId": {
           "Ref": "MehdiVPC"
         },
@@ -634,7 +706,7 @@
             "Value": "MehdiVPC"
           }
         ],
-        "CidrBlock": "10.10.10.0/24",
+        "CidrBlock": "10.0.0.0/16",
         "EnableDnsSupport": "true",
         "EnableDnsHostnames": "true"
       },
@@ -661,7 +733,7 @@
         "VpcId": {
           "Ref": "MehdiVPC"
         },
-        "CidrBlock": "10.10.10.0/24"
+        "CidrBlock": "10.0.1.0/24"
       },
       "Metadata": {
         "AWS::CloudFormation::Designer": {
@@ -748,7 +820,25 @@
       }
     }
   },
-  "Outputs": {},
+  "Outputs": {
+    "IPAddress": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            {
+              "Fn::GetAtt": [
+                "EC2WebServer",
+                "PublicIp"
+              ]
+            },
+            " :)"
+          ]
+        ]
+      },
+      "Description": "Public IP Address of your instance."
+    }
+  },
   "Metadata": {
     "AWS::CloudFormation::Designer": {
       "c71753ac-a1fb-4937-a439-1fd944316f1e": {
@@ -800,7 +890,8 @@
         },
         "target": {
           "id": "6ffaa6f8-cabd-4cfd-aac4-4e1b7c41d91c"
-        }
+        },
+        "z": 1
       },
       "52ad2301-fd8f-49bb-9eb1-b2b75f1af4b2": {
         "size": {
@@ -842,7 +933,8 @@
         },
         "target": {
           "id": "a654e69a-697d-435c-800e-4ae8aa91d847"
-        }
+        },
+        "z": 2
       },
       "dc047cd3-d361-4a5e-b988-8e25b6009f92": {
         "size": {
