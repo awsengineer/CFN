@@ -13,6 +13,7 @@
         },
         "z": 1,
         "embeds": [
+          "745fc5cd-8b2f-4df0-9cf6-e3c2d882170b",
           "b1104c7b-7b52-46be-b39b-be453e2ea945",
           "acd2d8c4-cac7-4595-a154-2ebccf543383",
           "b6a4b96a-b79b-4e57-8b5b-f0ae752d83c0",
@@ -56,6 +57,7 @@
         "z": 0,
         "parent": "f6ffaafc-16fb-4adf-882b-9f88015f51b7",
         "embeds": [
+          "81b2bf9d-82c3-4b74-88eb-e4ebb8696d4a",
           "dea0c8de-d55d-4adb-a061-523335f02529"
         ]
       },
@@ -520,13 +522,13 @@
           "height": 60
         },
         "position": {
-          "x": 7160,
-          "y": 1250
+          "x": 7070,
+          "y": 1220
         },
         "z": 0,
         "embeds": [],
-        "ismemberof": [
-          "745fc5cd-8b2f-4df0-9cf6-e3c2d882170b"
+        "isconnectedto": [
+          "81b2bf9d-82c3-4b74-88eb-e4ebb8696d4a"
         ],
         "isrelatedto": [
           "745fc5cd-8b2f-4df0-9cf6-e3c2d882170b",
@@ -539,10 +541,11 @@
           "height": 60
         },
         "position": {
-          "x": 7000,
+          "x": 6830,
           "y": 1210
         },
         "z": 0,
+        "parent": "f6ffaafc-16fb-4adf-882b-9f88015f51b7",
         "embeds": []
       },
       "9fcae438-e844-40e7-9bc5-4e5d21bb4340": {
@@ -553,6 +556,70 @@
           "id": "745fc5cd-8b2f-4df0-9cf6-e3c2d882170b"
         },
         "z": 11
+      },
+      "81b2bf9d-82c3-4b74-88eb-e4ebb8696d4a": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 6940,
+          "y": 1210
+        },
+        "z": 0,
+        "parent": "f9abaa80-8d82-4ba3-8907-955e296bc4eb",
+        "embeds": [],
+        "ismemberof": [
+          "745fc5cd-8b2f-4df0-9cf6-e3c2d882170b"
+        ]
+      },
+      "b37b7ee5-e44d-4101-826d-893b11cdbf33": {
+        "source": {
+          "id": "28dc68b4-895f-4ed4-b15e-be4cbc8e06b5"
+        },
+        "target": {
+          "id": "81b2bf9d-82c3-4b74-88eb-e4ebb8696d4a"
+        },
+        "z": 11
+      },
+      "9f0e24ac-b06e-4df2-a505-3c6d1c088b36": {
+        "source": {
+          "id": "81b2bf9d-82c3-4b74-88eb-e4ebb8696d4a"
+        },
+        "target": {
+          "id": "745fc5cd-8b2f-4df0-9cf6-e3c2d882170b"
+        },
+        "z": 12
+      },
+      "168d7868-7dc3-4e01-95ed-111719c882f3": {
+        "source": {
+          "id": "28dc68b4-895f-4ed4-b15e-be4cbc8e06b5"
+        },
+        "target": {
+          "id": "81b2bf9d-82c3-4b74-88eb-e4ebb8696d4a"
+        },
+        "z": 11
+      },
+      "4fe2257c-4775-4a93-963e-8ac2a71d9dd4": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 6940,
+          "y": 1330
+        },
+        "z": 0,
+        "embeds": []
+      },
+      "b8b48e36-0620-445f-8583-15da4e903cd3": {
+        "source": {
+          "id": "4fe2257c-4775-4a93-963e-8ac2a71d9dd4"
+        },
+        "target": {
+          "id": "81b2bf9d-82c3-4b74-88eb-e4ebb8696d4a"
+        },
+        "z": 0
       }
     }
   },
@@ -1277,7 +1344,7 @@
             "Ref": "PrivateSubnetB"
           }
         ],
-        "MaxSize": "4",
+        "MaxSize": "10",
         "DesiredCapacity": "2",
         "MinSize": "1",
         "HealthCheckGracePeriod": "120",
@@ -1673,20 +1740,6 @@
     "BastionHost": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
-        "NetworkInterfaces": [
-          {
-            "AssociatePublicIpAddress": "true",
-            "DeviceIndex": "0",
-            "GroupSet": [
-              {
-                "Ref": "BastionSecurityGroup"
-              }
-            ],
-            "SubnetId": {
-              "Ref": "PublicSubnetA"
-            }
-          }
-        ],
         "InstanceType": {
           "Ref": "InstanceType"
         },
@@ -1717,7 +1770,7 @@
           },
           {
             "Key": "Name",
-            "Value": "BastionSecurityGroup"
+            "Value": "BastionHost"
           }
         ],
         "UserData": {
@@ -1743,7 +1796,15 @@
               ]
             ]
           }
-        }
+        },
+        "NetworkInterfaces": [
+          {
+            "NetworkInterfaceId": {
+              "Ref": "BastionNetInterface0"
+            },
+            "DeviceIndex": "0"
+          }
+        ]
       },
       "Metadata": {
         "AWS::CloudFormation::Designer": {
@@ -1800,6 +1861,52 @@
           "id": "745fc5cd-8b2f-4df0-9cf6-e3c2d882170b"
         }
       }
+    },
+    "BastionNetInterface0": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnetA"
+        },
+        "GroupSet": [
+          {
+            "Ref": "BastionSecurityGroup"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "81b2bf9d-82c3-4b74-88eb-e4ebb8696d4a"
+        }
+      }
+    },
+    "BastionEIP": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {},
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "4fe2257c-4775-4a93-963e-8ac2a71d9dd4"
+        }
+      }
+    },
+    "EC2EIPA2LHT9": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "BastionEIP",
+            "AllocationId"
+          ]
+        },
+        "NetworkInterfaceId": {
+          "Ref": "BastionNetInterface0"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "b8b48e36-0620-445f-8583-15da4e903cd3"
+        }
+      }
     }
   },
   "Outputs": {
@@ -1808,6 +1915,7 @@
         "Fn::Join": [
           "",
           [
+            "http://",
             {
               "Fn::GetAtt": [
                 "WebELB",
@@ -1820,11 +1928,24 @@
       },
       "Description": "You web server URL"
     },
-    "BastionHostIP": {
+    "SSHtoBastionHost": {
       "Value": {
-        "Fn::GetAtt": [
-          "BastionHost",
-          "PublicIp"
+        "Fn::Join": [
+          "",
+          [
+            "ssh -i ",
+            {
+              "Ref": "KeyPairName"
+            },
+            ".pem ",
+            "ec2-user@",
+            {
+              "Fn::GetAtt": [
+                "BastionHost",
+                "PublicIp"
+              ]
+            }
+          ]
         ]
       },
       "Description": "The Public Ip of the bastion host for SSH connection."
