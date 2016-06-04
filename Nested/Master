@@ -2,7 +2,7 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Parameters": {
     "InstanceType": {
-      "Description": "WebServer EC2 instance type",
+      "Description": "Linux bastion host instance type",
       "Type": "String",
       "Default": "t2.micro",
       "AllowedValues": [
@@ -61,7 +61,7 @@
         "cc2.8xlarge",
         "cg1.4xlarge"
       ],
-      "ConstraintDescription": "must be a valid EC2 instance type."
+      "ConstraintDescription": "Must be a valid EC2 instance type."
     },
     "KeyPairName": {
       "Description": "Name of an existing EC2 KeyPair:",
@@ -76,7 +76,7 @@
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
       "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
     },
-    "AllowedAddressesToBastionHost": {
+    "AllowedAddressesToLinuxBastionHost": {
       "Description": "The IP address range that can be used to connect to the Linux Bastion host",
       "Type": "String",
       "MinLength": "9",
@@ -94,7 +94,7 @@
         "TimeoutInMinutes": "300",
         "Parameters": {
           "AllowedAddressesToBastionHost": {
-            "Ref": "AllowedAddressesToBastionHost"
+            "Ref": "AllowedAddressesToLinuxBastionHost"
           },
           "InstanceType": {
             "Ref": "InstanceType"
@@ -109,20 +109,49 @@
           "id": "710038a7-64d1-4775-8bc9-f269bdc2962f"
         }
       }
-    }
-  },
-  "Outputs": {
-    "StackRef": {
-      "Value": {
-        "Ref": "BaseStack"
-      }
     },
-    "KeyPairName": {
-      "Value": {
-        "Fn::GetAtt": [
-          "BaseStack",
-          "Outputs.KeyPairName"
-        ]
+    "NATGatewayStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3-ap-southeast-2.amazonaws.com/fujitsu-cloud/mehdicfns/AddNATGateway.template",
+        "TimeoutInMinutes": "300",
+        "Parameters": {
+          "PublicSubnetA": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.PublicSubnetA"
+            ]
+          },
+          "PublicSubnetB": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.PublicSubnetB"
+            ]
+          },
+          "PrivateSubnetA": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.PrivateSubnetA"
+            ]
+          },
+          "PrivateSubnetB": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.PrivateSubnetB"
+            ]
+          },
+          "VPCName": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.BaseVPC"
+            ]
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "710038a7-64d1-4775-8bc9-f269bdc2962f"
+        }
       }
     }
   },
@@ -134,11 +163,14 @@
           "height": 60
         },
         "position": {
-          "x": 20,
-          "y": 70
+          "x": 340,
+          "y": 110
         },
         "z": 1,
-        "embeds": []
+        "embeds": [],
+        "isrelatedto": [
+          "710038a7-64d1-4775-8bc9-f269bdc2962f"
+        ]
       }
     }
   }
