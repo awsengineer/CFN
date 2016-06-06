@@ -1,0 +1,428 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "VPCCIDR": {
+      "Description": "The CIDR range of the VPC:",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "10.0.0.0/16",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "CIDRforPublicSubnetA": {
+      "Description": "The CIDR range of the first pubic subnet:",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "10.0.1.0/24",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "CIDRforPublicSubnetB": {
+      "Description": "The CIDR range of the second pubic subnet:",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "10.0.2.0/24",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "CIDRforPrivateSubnetA": {
+      "Description": "The CIDR range of the first private subnet:",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "10.0.3.0/24",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "CIDRforPrivateSubnetB": {
+      "Description": "The CIDR range of the second private subnet:",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "10.0.4.0/24",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "LinuxBastionInstanceType": {
+      "Description": "Linux bastion host instance type",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": [
+        "t1.micro",
+        "t2.nano",
+        "t2.micro",
+        "t2.small",
+        "t2.medium",
+        "t2.large",
+        "m1.small",
+        "m1.medium",
+        "m1.large",
+        "m1.xlarge",
+        "m2.xlarge",
+        "m2.2xlarge",
+        "m2.4xlarge",
+        "m3.medium",
+        "m3.large",
+        "m3.xlarge",
+        "m3.2xlarge",
+        "m4.large",
+        "m4.xlarge",
+        "m4.2xlarge",
+        "m4.4xlarge",
+        "m4.10xlarge",
+        "c1.medium",
+        "c1.xlarge",
+        "c3.large",
+        "c3.xlarge",
+        "c3.2xlarge",
+        "c3.4xlarge",
+        "c3.8xlarge",
+        "c4.large",
+        "c4.xlarge",
+        "c4.2xlarge",
+        "c4.4xlarge",
+        "c4.8xlarge",
+        "g2.2xlarge",
+        "g2.8xlarge",
+        "r3.large",
+        "r3.xlarge",
+        "r3.2xlarge",
+        "r3.4xlarge",
+        "r3.8xlarge",
+        "i2.xlarge",
+        "i2.2xlarge",
+        "i2.4xlarge",
+        "i2.8xlarge",
+        "d2.xlarge",
+        "d2.2xlarge",
+        "d2.4xlarge",
+        "d2.8xlarge",
+        "hi1.4xlarge",
+        "hs1.8xlarge",
+        "cr1.8xlarge",
+        "cc2.8xlarge",
+        "cg1.4xlarge"
+      ],
+      "ConstraintDescription": "Must be a valid EC2 instance type."
+    },
+    "KeyPairName": {
+      "Description": "Name of an existing EC2 KeyPair:",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "AllowedAddressesToWebServer": {
+      "Description": "The IP address range that can be used to connect to the HTTP ELB",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "AllowedAddressesToLinuxBastionHost": {
+      "Description": "The IP address range that can be used to connect to the Linux Bastion host",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    }
+  },
+  "Resources": {
+    "BaseStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3-ap-southeast-2.amazonaws.com/fujitsu-cloud/mehdicfns/Base.template",
+        "TimeoutInMinutes": "300",
+        "Parameters": {
+          "VPCCIDR": {
+            "Ref": "VPCCIDR"
+          },
+          "CIDRforPublicSubnetA": {
+            "Ref": "CIDRforPublicSubnetA"
+          },
+          "CIDRforPublicSubnetB": {
+            "Ref": "CIDRforPublicSubnetB"
+          },
+          "CIDRforPrivateSubnetA": {
+            "Ref": "CIDRforPrivateSubnetA"
+          },
+          "CIDRforPrivateSubnetB": {
+            "Ref": "CIDRforPrivateSubnetB"
+          },
+          "AllowedAddressesToLinuxBastionHost": {
+            "Ref": "AllowedAddressesToLinuxBastionHost"
+          },
+          "LinuxBastionInstanceType": {
+            "Ref": "LinuxBastionInstanceType"
+          },
+          "KeyPairName": {
+            "Ref": "KeyPairName"
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "bdde3d7e-d352-40dc-bb80-0d91ebe16639"
+        }
+      }
+    },
+    "NATGatewayStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3-ap-southeast-2.amazonaws.com/fujitsu-cloud/mehdicfns/AddNATGateway.template",
+        "TimeoutInMinutes": "300",
+        "Parameters": {
+          "PublicSubnetA": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.PublicSubnetA"
+            ]
+          },
+          "PublicSubnetB": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.PublicSubnetB"
+            ]
+          },
+          "PrivateSubnetA": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.PrivateSubnetA"
+            ]
+          },
+          "PrivateSubnetB": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.PrivateSubnetB"
+            ]
+          },
+          "VPCName": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.BaseVPC"
+            ]
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "1928acff-146c-411f-81b8-7cc0e1c7c6fb"
+        }
+      }
+    },
+    "RDSSubnetGroup1": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "Subnet group for MySQL multi-AZ DB",
+        "SubnetIds": ["subnet-198ecf33", "subnet-1e9fae68" ],
+        "Tags": [
+          {
+            "Key": "Createdby",
+            "Value": "Mehdi"
+          },
+          {
+            "Key": "Name",
+            "Value": "FujVPC"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "d95688d1-9d85-48c5-99ac-d210a1320746"
+        }
+      }
+    },
+    "MySQLRDSSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "MySQL Security Group",
+        "VpcId": {
+          "Fn::GetAtt": [
+            "BaseStack",
+            "Outputs.BaseVPC"
+          ]
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3306",
+            "ToPort": "3306",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Createdby",
+            "Value": "Mehdi"
+          },
+          {
+            "Key": "Name",
+            "Value": "MySQLRDSSecurityGroup"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "140e5011-912e-49a3-91ff-496a7e3beca2"
+        }
+      }
+    },
+    "RDSInstance1": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "DBName": "testdb",
+        "AllocatedStorage": "5",
+        "DBInstanceClass": "db.t2.micro",
+        "Engine": "MySQL",
+        "EngineVersion": "5.7.11",
+        "MasterUsername": "salehim",
+        "MasterUserPassword": "abcABC123",
+        "VPCSecurityGroups": [
+          {
+            "Ref": "MySQLRDSSecurityGroup"
+          }
+        ],
+        "DBSubnetGroupName": {
+          "Ref": "RDSSubnetGroup1"
+        },
+        "MultiAZ": "true"
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "f7e9a248-e5ef-45ea-97d5-dade7e93d0c4"
+        }
+      }
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Designer": {
+      "bdde3d7e-d352-40dc-bb80-0d91ebe16639": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 60,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": [
+          "140e5011-912e-49a3-91ff-496a7e3beca2"
+        ]
+      },
+      "1928acff-146c-411f-81b8-7cc0e1c7c6fb": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 150,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": [],
+        "isrelatedto": [
+          "bdde3d7e-d352-40dc-bb80-0d91ebe16639"
+        ]
+      },
+      "d95688d1-9d85-48c5-99ac-d210a1320746": {
+        "size": {
+          "width": 140,
+          "height": 140
+        },
+        "position": {
+          "x": 390,
+          "y": 130
+        },
+        "z": 0,
+        "embeds": [],
+        "isconnectedto": [
+          "bdde3d7e-d352-40dc-bb80-0d91ebe16639"
+        ],
+        "isrelatedto": [
+          "bdde3d7e-d352-40dc-bb80-0d91ebe16639"
+        ]
+      },
+      "140e5011-912e-49a3-91ff-496a7e3beca2": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 870,
+          "y": 70
+        },
+        "z": 0,
+        "parent": "bdde3d7e-d352-40dc-bb80-0d91ebe16639",
+        "embeds": [],
+        "isrelatedto": [
+          "bdde3d7e-d352-40dc-bb80-0d91ebe16639"
+        ]
+      },
+      "f7e9a248-e5ef-45ea-97d5-dade7e93d0c4": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 610,
+          "y": 140
+        },
+        "z": 0,
+        "embeds": [],
+        "ismemberof": [
+          "140e5011-912e-49a3-91ff-496a7e3beca2"
+        ],
+        "isrelatedto": [
+          "140e5011-912e-49a3-91ff-496a7e3beca2"
+        ]
+      },
+      "b901f03e-11eb-42b3-bddb-5e5f8c7335af": {
+        "source": {
+          "id": "f7e9a248-e5ef-45ea-97d5-dade7e93d0c4"
+        },
+        "target": {
+          "id": "140e5011-912e-49a3-91ff-496a7e3beca2"
+        },
+        "z": 2
+      },
+      "62270a35-d35d-4685-9767-97896d3381cd": {
+        "source": {
+          "id": "f7e9a248-e5ef-45ea-97d5-dade7e93d0c4",
+          "selector": "g:nth-child(1) g:nth-child(4) g:nth-child(1) circle:nth-child(1)     ",
+          "port": "AWS::MembershipLInk-AWS::EC2::SecurityGroup-VPCSecurityGroups"
+        },
+        "target": {
+          "id": "140e5011-912e-49a3-91ff-496a7e3beca2"
+        },
+        "z": 3
+      },
+      "85351985-219b-4aad-a7da-5db9a290fe85": {
+        "source": {
+          "id": "f7e9a248-e5ef-45ea-97d5-dade7e93d0c4",
+          "selector": "g:nth-child(1) g:nth-child(4) g:nth-child(1) circle:nth-child(1)     ",
+          "port": "AWS::MembershipLInk-AWS::EC2::SecurityGroup-VPCSecurityGroups"
+        },
+        "target": {
+          "id": "140e5011-912e-49a3-91ff-496a7e3beca2"
+        },
+        "z": 3
+      },
+      "930575ef-e311-4ab4-9200-653346664467": {
+        "source": {
+          "id": "f7e9a248-e5ef-45ea-97d5-dade7e93d0c4",
+          "selector": "g:nth-child(1) g:nth-child(4) g:nth-child(1) circle:nth-child(1)     ",
+          "port": "AWS::MembershipLInk-AWS::EC2::SecurityGroup-VPCSecurityGroups"
+        },
+        "target": {
+          "id": "140e5011-912e-49a3-91ff-496a7e3beca2"
+        },
+        "z": 3
+      }
+    }
+  }
+}
