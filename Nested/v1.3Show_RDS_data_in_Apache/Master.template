@@ -163,11 +163,6 @@
             "Ref": "KeyPairName"
           }
         }
-      },
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "0ebbdb33-30ef-43ee-90cc-02b17fadcb02"
-        }
       }
     },
     "NATGatewayStack": {
@@ -208,11 +203,6 @@
           }
         }
       },
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "2653c7b0-f589-4ef5-af78-8be5189b77b9"
-        }
-      },
       "DependsOn": [
         "BaseStack"
       ]
@@ -220,15 +210,9 @@
     "RDSStack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://s3-ap-southeast-2.amazonaws.com/fujitsu-cloud/mehdicfns/RDS.template",
-        "TimeoutInMinutes": "600",
+        "TemplateURL": "https://s3-ap-southeast-2.amazonaws.com/fujitsu-cloud/mehdicfns/RDSfromsnapshot.template",
+        "TimeoutInMinutes": "900",
         "Parameters": {
-          "VPCID": {
-            "Fn::GetAtt": [
-              "BaseStack",
-              "Outputs.BaseVPC"
-            ]
-          },
           "PrivateSubnetA": {
             "Fn::GetAtt": [
               "BaseStack",
@@ -241,89 +225,21 @@
               "Outputs.PrivateSubnetB"
             ]
           },
+          "VPCID": {
+            "Fn::GetAtt": [
+              "BaseStack",
+              "Outputs.BaseVPC"
+            ]
+          },
           "MultiAZ": "false",
           "MasterUserName": "salehim",
-          "MasterUserPassword": "abcABC123"
-        }
-      },
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "8d30aa82-2c98-42dc-a494-f3f69eebbc19"
+          "MasterUserPassword": "abcABC123",
+          "DBSnapshotName": "manualrdsnapshotbymehdi"
         }
       },
       "DependsOn": [
         "BaseStack"
       ]
-    }
-  },
-  "Metadata": {
-    "AWS::CloudFormation::Designer": {
-      "0ebbdb33-30ef-43ee-90cc-02b17fadcb02": {
-        "size": {
-          "width": 60,
-          "height": 60
-        },
-        "position": {
-          "x": 60,
-          "y": 90
-        },
-        "z": 1,
-        "embeds": []
-      },
-      "8d30aa82-2c98-42dc-a494-f3f69eebbc19": {
-        "size": {
-          "width": 60,
-          "height": 60
-        },
-        "position": {
-          "x": 190,
-          "y": 90
-        },
-        "z": 1,
-        "embeds": [],
-        "dependson": [
-          "0ebbdb33-30ef-43ee-90cc-02b17fadcb02"
-        ],
-        "isrelatedto": [
-          "0ebbdb33-30ef-43ee-90cc-02b17fadcb02"
-        ]
-      },
-      "2653c7b0-f589-4ef5-af78-8be5189b77b9": {
-        "size": {
-          "width": 60,
-          "height": 60
-        },
-        "position": {
-          "x": 60,
-          "y": 210
-        },
-        "z": 1,
-        "embeds": [],
-        "dependson": [
-          "0ebbdb33-30ef-43ee-90cc-02b17fadcb02"
-        ],
-        "isrelatedto": [
-          "0ebbdb33-30ef-43ee-90cc-02b17fadcb02"
-        ]
-      },
-      "a9a4c2d9-53cc-416a-9ba5-c06b12543ed3": {
-        "source": {
-          "id": "8d30aa82-2c98-42dc-a494-f3f69eebbc19"
-        },
-        "target": {
-          "id": "0ebbdb33-30ef-43ee-90cc-02b17fadcb02"
-        },
-        "z": 11
-      },
-      "381649e7-2dc1-4fc6-9ba9-b85b9b2178e8": {
-        "source": {
-          "id": "2653c7b0-f589-4ef5-af78-8be5189b77b9"
-        },
-        "target": {
-          "id": "0ebbdb33-30ef-43ee-90cc-02b17fadcb02"
-        },
-        "z": 12
-      }
     }
   }
 }
