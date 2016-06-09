@@ -6,11 +6,11 @@
       "Type": "AWS::EC2::VPC::Id"
     },
     "PublicSubnetA": {
-      "Description": "PrivateSubnetA:",
+      "Description": "PublicSubnetA:",
       "Type": "AWS::EC2::Subnet::Id"
     },
     "PublicSubnetB": {
-      "Description": "PrivateSubnetB:",
+      "Description": "PublicSubnetB:",
       "Type": "AWS::EC2::Subnet::Id"
     },
     "PrivateSubnetA": {
@@ -239,7 +239,7 @@
           },
           {
             "Key": "Name",
-            "Value": "WebWebELBSecurityGroup"
+            "Value": "WebELBSecurityGroup"
           }
         ]
       }
