@@ -192,5 +192,13 @@
         ]
       }
     }
+  },
+  "Outputs": {
+      "RDSSecurityGroup": {
+      "Value": {
+        "Ref": "MySQLRDSSecurityGroup"
+      },
+      "Description": "RDSSecurityGroup"
+    }
   }
 }

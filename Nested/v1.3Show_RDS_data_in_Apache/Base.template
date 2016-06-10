@@ -907,6 +907,12 @@
         "Ref": "KeyPairName"
       },
       "Description": "Key pair name."
+    },
+    "LinuxBastionSecurityGroup": {
+      "Value": {
+        "Ref": "LinuxBastionSecurityGroup"
+      },
+      "Description": "LinuxBastionSecurityGroup"
     }
   }
 }

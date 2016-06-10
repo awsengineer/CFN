@@ -164,48 +164,6 @@
           }
         }
       }
-    },
-    "NATGatewayStack": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "TemplateURL": "https://s3-ap-southeast-2.amazonaws.com/fujitsu-cloud/mehdicfns/AddNATGateway.template",
-        "TimeoutInMinutes": "300",
-        "Parameters": {
-          "PublicSubnetA": {
-            "Fn::GetAtt": [
-              "BaseStack",
-              "Outputs.PublicSubnetA"
-            ]
-          },
-          "PublicSubnetB": {
-            "Fn::GetAtt": [
-              "BaseStack",
-              "Outputs.PublicSubnetB"
-            ]
-          },
-          "PrivateSubnetA": {
-            "Fn::GetAtt": [
-              "BaseStack",
-              "Outputs.PrivateSubnetA"
-            ]
-          },
-          "PrivateSubnetB": {
-            "Fn::GetAtt": [
-              "BaseStack",
-              "Outputs.PrivateSubnetB"
-            ]
-          },
-          "VPCName": {
-            "Fn::GetAtt": [
-              "BaseStack",
-              "Outputs.BaseVPC"
-            ]
-          }
-        }
-      },
-      "DependsOn": [
-        "BaseStack"
-      ]
     }
   }
 }
