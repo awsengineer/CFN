@@ -683,27 +683,25 @@
       "DependsOn": [
         "BaseStack"
       ]
-    }
-  },
-  "WEBandELBStack": {
+    },
+    "WEBandELBStack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "TemplateURL": "https://s3-ap-southeast-2.amazonaws.com/fujitsu-cloud/mehdicfns/WEBandELB.template",
         "TimeoutInMinutes": "500",
         "Parameters": {
-	  "PublicSubnetA": {
+          "PublicSubnetA": {
             "Fn::GetAtt": [
               "BaseStack",
               "Outputs.PublilcSubnetA"
             ]
           },
-	  "PublicSubnetB": {
+          "PublicSubnetB": {
             "Fn::GetAtt": [
               "BaseStack",
               "Outputs.PublicSubnetB"
             ]
           },
-
           "PrivateSubnetA": {
             "Fn::GetAtt": [
               "BaseStack",
@@ -722,10 +720,10 @@
               "Outputs.BaseVPC"
             ]
           },
-	  "HTTPInstanceType": {
+          "HTTPInstanceType": {
             "Ref": "WebServerInstanceType"
           },
-	  "HTTPImageID": {
+          "HTTPImageID": {
             "Fn::FindInMap": [
               "AWSRegionArch2AMI",
               {
@@ -741,14 +739,14 @@
                 ]
               }
             ]
-           },
-	   "LinuxBastionSecurityGroup": {
+          },
+          "LinuxBastionSecurityGroup": {
             "Fn::GetAtt": [
               "BaseStack",
               "Outputs.LinuxBastionSecurityGroup"
             ]
           },
-	  "RDSSecurityGroup": {
+          "RDSSecurityGroup": {
             "Fn::GetAtt": [
               "BaseStack",
               "Outputs.RDSSecurityGroup"
@@ -761,5 +759,4 @@
       ]
     }
   }
-
 }
