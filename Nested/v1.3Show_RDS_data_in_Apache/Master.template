@@ -693,7 +693,7 @@
           "PublicSubnetA": {
             "Fn::GetAtt": [
               "BaseStack",
-              "Outputs.PublilcSubnetA"
+              "Outputs.PublicSubnetA"
             ]
           },
           "PublicSubnetB": {
@@ -748,7 +748,7 @@
           },
           "RDSSecurityGroup": {
             "Fn::GetAtt": [
-              "BaseStack",
+              "RDSStack",
               "Outputs.RDSSecurityGroup"
             ]
           }

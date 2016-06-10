@@ -1,3 +1,6 @@
+echo -n "Stack name to create: "
+read stackname
+
 aws s3 cp AddNATGateway.template  s3://fujitsu-cloud/mehdicfns/AddNATGateway.template
 aws s3 cp Base.template  s3://fujitsu-cloud/mehdicfns/Base.template
 aws s3 cp MasternoRDS.template  s3://fujitsu-cloud/mehdicfns/MasternoRDS.template
@@ -6,7 +9,7 @@ aws s3 cp RDSfromsnapshot.template  s3://fujitsu-cloud/mehdicfns/RDSfromsnapshot
 aws s3 cp RDS.template  s3://fujitsu-cloud/mehdicfns/RDS.template
 aws s3 cp WEBandELB.template s3://fujitsu-cloud/mehdicfns/WEBandELB.template
 
-aws cloudformation create-stack --region us-east-1 --stack-name monstack1 --template-url https://s3-ap-southeast-2.amazonaws.com/fujitsu-cloud/mehdicfns/Master.template  --parameters ParameterKey=KeyPairName,ParameterValue=fujitsu-cloud-virginia
+aws cloudformation create-stack --region us-east-1 --stack-name $stackname --template-url https://s3-ap-southeast-2.amazonaws.com/fujitsu-cloud/mehdicfns/Master.template  --parameters ParameterKey=KeyPairName,ParameterValue=fujitsu-cloud-virginia
 
 #aws cloudformation create-stack \
 #	--region us-east-1 \
