@@ -194,11 +194,20 @@
     }
   },
   "Outputs": {
-      "RDSSecurityGroup": {
+    "RDSSecurityGroup": {
       "Value": {
         "Ref": "MySQLRDSSecurityGroup"
       },
       "Description": "RDSSecurityGroup"
+    },
+    "RDSEndpoint": {
+      "Value": {
+        "Fn::GetAtt": [
+          "RDSInstance1",
+          "Endpoint.Address"
+        ]
+      },
+      "Description": "RDSEndpoint"
     }
   }
 }

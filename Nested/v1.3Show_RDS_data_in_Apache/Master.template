@@ -723,6 +723,11 @@
           "HTTPInstanceType": {
             "Ref": "WebServerInstanceType"
           },
+
+          "KeyPairName": {
+            "Ref": "KeyPairName"
+          },
+
           "HTTPImageID": {
             "Fn::FindInMap": [
               "AWSRegionArch2AMI",
@@ -750,6 +755,12 @@
             "Fn::GetAtt": [
               "RDSStack",
               "Outputs.RDSSecurityGroup"
+            ]
+          },
+          "RDSEndpoint": {
+            "Fn::GetAtt": [
+              "RDSStack",
+              "Outputs.RDSEndpoint"
             ]
           }
         }

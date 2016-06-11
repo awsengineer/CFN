@@ -40,6 +40,10 @@
     "HTTPImageID": {
       "Description": "HTTP Server EC2 ImageID?",
       "Type": "String"
+    },
+     "RDSEndpoint": {
+      "Description": "RDS Database endpoit",
+      "Type": "String"
     }
   },
   "Resources": {
@@ -86,6 +90,11 @@
             "Value": "PrivateSecurityGroupBehindELB"
           }
         ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "680b7c42-5c45-4f4c-8568-09d41dea0082"
+        }
       }
     },
     "LaunchConfig1": {
@@ -116,6 +125,32 @@
                 "wget https://raw.githubusercontent.com/awsengineer/MyTED/master/mycloudinit.sh -O /tmp/mycloudinit.sh\n",
                 "chmod +x /tmp/mycloudinit.sh\n",
                 "/tmp/mycloudinit.sh\n",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "sed -i 's/RDSEndpoint/",
+                      {
+                        "Ref": "RDSEndpoint"
+                      },
+                      "/' /var/www/cgi-bin/ted\n"
+                    ]
+                  ]
+                },
+
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "sed -i 's/RDSEndpoint/",
+                      {
+                        "Ref": "RDSEndpoint"
+                      },
+                      "/' /var/www/cgi-bin/insert.py\n"
+                    ]
+                  ]
+                },
+
                 "/opt/aws/bin/cfn-signal -e 0 --stack ",
                 {
                   "Ref": "AWS::StackName"
@@ -129,6 +164,11 @@
               ]
             ]
           }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "a5c58cfa-952c-45ab-953e-22a13f0c2787"
         }
       }
     },
@@ -171,7 +211,12 @@
       },
       "DependsOn": [
         "WebELB"
-      ]
+      ],
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "307988ff-74cf-4aaa-ad9a-28d5b4741be9"
+        }
+      }
     },
     "WebELB": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
@@ -215,7 +260,12 @@
       },
       "DependsOn": [
         "WebELBSecurityGroup"
-      ]
+      ],
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "d40fc411-1f39-4064-9f0c-5e1f3b006690"
+        }
+      }
     },
     "WebELBSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
@@ -242,6 +292,11 @@
             "Value": "WebELBSecurityGroup"
           }
         ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "49e307d1-ebca-4fe9-91e9-5a00556e114d"
+        }
       }
     }
   },
@@ -262,6 +317,91 @@
         ]
       },
       "Description": "ELB public endpoint."
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Designer": {
+      "49e307d1-ebca-4fe9-91e9-5a00556e114d": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 60,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "d40fc411-1f39-4064-9f0c-5e1f3b006690": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 180,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": [],
+        "ismemberof": [
+          "49e307d1-ebca-4fe9-91e9-5a00556e114d"
+        ],
+        "dependson": [
+          "49e307d1-ebca-4fe9-91e9-5a00556e114d"
+        ]
+      },
+      "680b7c42-5c45-4f4c-8568-09d41dea0082": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 60,
+          "y": 210
+        },
+        "z": 1,
+        "embeds": [],
+        "isrelatedto": [
+          "49e307d1-ebca-4fe9-91e9-5a00556e114d"
+        ]
+      },
+      "a5c58cfa-952c-45ab-953e-22a13f0c2787": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 180,
+          "y": 210
+        },
+        "z": 1,
+        "embeds": [],
+        "ismemberof": [
+          "680b7c42-5c45-4f4c-8568-09d41dea0082"
+        ]
+      },
+      "307988ff-74cf-4aaa-ad9a-28d5b4741be9": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 300,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": [],
+        "isconnectedto": [
+          "d40fc411-1f39-4064-9f0c-5e1f3b006690"
+        ],
+        "isassociatedwith": [
+          "a5c58cfa-952c-45ab-953e-22a13f0c2787"
+        ],
+        "dependson": [
+          "d40fc411-1f39-4064-9f0c-5e1f3b006690"
+        ]
+      }
     }
   }
 }
