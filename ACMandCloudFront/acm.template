@@ -1,0 +1,11 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Resources": {
+        "CMC1O8F2": {
+            "Type": "AWS::CertificateManager::Certificate",
+            "Properties": {
+                "DomainName": "cfn.redhatarchitect.com"
+            }
+        }
+    }
+}

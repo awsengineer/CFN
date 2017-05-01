@@ -1,0 +1,40 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Resources": 
+        {
+        
+        "MyCloudFrontDistribution": {
+            "Type": "AWS::CloudFront::Distribution",
+            "Properties": {
+                "DistributionConfig": {
+                    "Aliases": ["cdn.redhatarchitect.com", "test.redhatarchitect.com"],
+                    "DefaultCacheBehavior": {
+                        "TargetOriginId": "MyBucket",
+                        "ForwardedValues": {
+                            "QueryString": "false"
+                        },
+                        "TargetOriginId": "MyBucket",
+                        "ViewerProtocolPolicy": "allow-all"
+                    },
+                    "DefaultRootObject": "index.html",
+                    "Enabled": "true",
+                    "Origins": [{
+                        "DomainName": "mehdi100.s3.amazonaws.com",
+                        "Id": "MyBucket",
+                        "S3OriginConfig": {}
+                    }],
+                    "ViewerCertificate": {
+                        "AcmCertificateArn": "arn:aws:acm:us-east-1:960780153193:certificate/76869216-12a1-4a20-9fc4-84c2d6cca117",
+                        "SslSupportMethod": "sni-only"
+                    }
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "c1610dfa-645f-497e-9b7b-9bc777798996"
+                }
+            }
+        }
+    }
+}
+
