@@ -13,9 +13,9 @@ lname  = form.getvalue('lname')
 address  = form.getvalue('address')
 
 db = pymysql.connect(host='RDSEndpoint',
-                             user='salehim',
+                             user='root',
                              password='abcABC123',
-                             db='mehdidb',
+                             db='testdb',
                              autocommit=True,
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
