@@ -1,0 +1,196 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create S3 bucket with basic security policy and logging
+Parameters:
+  bucketname:
+    Description: Bucket name for new S3 bucket.
+    Type: String
+    Default: replaceme01
+    AllowedPattern: '[a-z0-9-]*'
+    ConstraintDescription: must be all lower case characters and numbers.
+  tagEnvironment:
+    AllowedValues:
+      - Dev
+      - Stage
+      - Prod
+      - QA
+      - PreProd
+      - POC
+      - Training
+      - Tek
+    Default: Dev
+    Description: Select the environment
+    Type: String
+  tagRegulatory:
+    AllowedPattern: '^[a-zA-Z ]*$'
+    ConstraintDescription: 'Must match regex [a-zA-Z ]*'
+    Default: GxP
+    Description: Blank if no Regulated Data (see Wiki)
+    MaxLength: '64'
+    MinLength: '0'
+    Type: String
+  tagDataClass:
+    AllowedValues:
+      - Public
+      - InternalUseOnly
+      - CAHPublic
+      - CAHConfidential
+      - CAHPrivate
+    ConstraintDescription: 'If CAHPrivate specified, good chance Regulatory may also apply.'
+    Default: InternalUseOnly
+    Description: Required field
+    Type: String
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: S3 Info
+        Parameters:
+          - bucketname
+      - Label:
+          default: Resource Tags
+        Parameters:
+          - tagEnvironment
+          - tagRegulatory
+Conditions:
+  Regulated: !Not 
+    - !Equals 
+      - !Ref tagRegulatory
+      - ''
+Resources:
+  s3bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref bucketname
+      LoggingConfiguration:
+        DestinationBucketName: ztest1411
+        LogFilePrefix: !Ref bucketname
+      Tags:
+        - Key: Name
+          Value: !Ref bucketname
+        - Key: CostCenter
+          Value: '1120000196'
+        - Key: APM
+          Value: SAP ByDesign
+        - Key: AssignmentGroup
+          Value: EIT-EI-DIS-Boomi-Run
+        - Key: ADGroup
+          Value: EIT-EI-DIS-Boomi-Run
+        - Key: ApplicationGroup
+          Value: bmiadm
+        - Key: PlatformGroup
+          Value: DellBoomi
+        - Key: Environment
+          Value: !Ref tagEnvironment
+        - Key: DataClass
+          Value: !Ref tagDataClass
+        - !If 
+          - Regulated
+          - Key: Regulatory
+            Value: !Ref tagRegulatory
+          - !Ref 'AWS::NoValue'
+        - Key: WhoBuilt
+          Value: pete.gervais
+  s3bucketpolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref s3bucket
+      PolicyDocument:
+        Id: !Join 
+          - '-'
+          - - !Ref s3bucket
+            - !Ref 'AWS::Region'
+            - !Ref 'AWS::AccountId'
+        Version: 2012-10-17
+        Statement:
+          - Sid: IPAllow
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref s3bucket
+                  - /
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref s3bucket
+                  - /*
+            Condition:
+              IpAddress:
+                'aws:SourceIp': 10.0.0.0/8
+          - Sid: IPAllow
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref s3bucket
+                  - /
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref s3bucket
+                  - /*
+            Condition:
+              IpAddress:
+                'aws:SourceIp': 199.230.203.0/24
+          - Sid: IPAllow
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref s3bucket
+                  - /
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref s3bucket
+                  - /*
+            Condition:
+              IpAddress:
+                'aws:SourceIp': 198.89.160.0/24
+          - Sid: DenyUnEncryptedObjectUploads
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:PutObject'
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref s3bucket
+                - /*
+            Condition:
+              StringNotEquals:
+                's3:x-amz-server-side-encryption': AES256
+          - Sid: Allow sapbydesign-s3-operators-group from CAH Core
+            Effect: Allow
+            Principal:
+              AWS:
+                - 'arn:aws:iam::167977214020:user/amanda.steudle'
+                - 'arn:aws:iam::167977214020:user/grace.ayemobola'
+                - 'arn:aws:iam::167977214020:user/maxim.lemyakin'
+                - 'arn:aws:iam::167977214020:user/saradha.kalyanakrishnan'
+            Action:
+              - 's3:List*'
+              - 's3:Get*'
+            Resource:
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref s3bucket
+                  - /*
+Outputs:
+  SAPbyDesignBucketname:
+    Description: Name of S3 bucket created
+    Value: !Ref bucketname
+  SAPbyDesignBucketARN:
+    Description: ARN of S3 bucket created
+    Value: !GetAtt 
+      - s3bucket
+      - Arn
