@@ -120,71 +120,7 @@ Resources:
             Condition:
               IpAddress:
                 'aws:SourceIp': 10.0.0.0/8
-          - Sid: IPAllow
-            Effect: Allow
-            Principal: '*'
-            Action: 's3:*'
-            Resource:
-              - !Join 
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref s3bucket
-                  - /
-              - !Join 
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref s3bucket
-                  - /*
-            Condition:
-              IpAddress:
-                'aws:SourceIp': 199.230.203.0/24
-          - Sid: IPAllow
-            Effect: Allow
-            Principal: '*'
-            Action: 's3:*'
-            Resource:
-              - !Join 
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref s3bucket
-                  - /
-              - !Join 
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref s3bucket
-                  - /*
-            Condition:
-              IpAddress:
-                'aws:SourceIp': 198.89.160.0/24
-          - Sid: DenyUnEncryptedObjectUploads
-            Effect: Deny
-            Principal: '*'
-            Action: 's3:PutObject'
-            Resource: !Join 
-              - ''
-              - - 'arn:aws:s3:::'
-                - !Ref s3bucket
-                - /*
-            Condition:
-              StringNotEquals:
-                's3:x-amz-server-side-encryption': AES256
-          - Sid: Allow sapbydesign-s3-operators-group from CAH Core
-            Effect: Allow
-            Principal:
-              AWS:
-                - 'arn:aws:iam::167977214020:user/amanda.steudle'
-                - 'arn:aws:iam::167977214020:user/grace.ayemobola'
-                - 'arn:aws:iam::167977214020:user/maxim.lemyakin'
-                - 'arn:aws:iam::167977214020:user/saradha.kalyanakrishnan'
-            Action:
-              - 's3:List*'
-              - 's3:Get*'
-            Resource:
-              - !Join 
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref s3bucket
-                  - /*
+          
 Outputs:
   SAPbyDesignBucketname:
     Description: Name of S3 bucket created
