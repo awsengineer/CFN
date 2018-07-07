@@ -1,46 +1,65 @@
 {
-  "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "Test DynamoDB table.",
-  "Resources" : {
-    "DDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "Properties" : {
-        "AttributeDefinitions" : [ {
-          "AttributeName" : "fname",
-          "AttributeType" : "S"
-        }, {
-          "AttributeName" : "lname",
-          "AttributeType" : "S"
-        }, {
-          "AttributeName" : "address",
-          "AttributeType" : "S"
-        } ],
-        "KeySchema" : [ {
-          "AttributeName" : "fname",
-          "KeyType" : "HASH"
-        }, {
-          "AttributeName" : "lname",
-          "KeyType" : "RANGE"
-        } ],
-        "GlobalSecondaryIndexes" : [ {
-          "IndexName" : "GSI",
-          "KeySchema" : [ {
-            "AttributeName" : "address",
-            "KeyType" : "HASH"
-          } ],
-          "Projection" : {
-            "ProjectionType" : "KEYS_ONLY"
-          },
-          "ProvisionedThroughput" : {
-            "ReadCapacityUnits" : 5,
-            "WriteCapacityUnits" : 5
-          }
-        } ],
-        "ProvisionedThroughput" : {
-          "ReadCapacityUnits" : 5,
-          "WriteCapacityUnits" : 5
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Test DynamoDB table.",
+    "Resources": {
+        "DDBTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "fname",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "lname",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "address",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "fname",
+                        "KeyType": "HASH"
+                    },
+                    {
+                        "AttributeName": "lname",
+                        "KeyType": "RANGE"
+                    }
+                ],
+                "GlobalSecondaryIndexes": [
+                    {
+                        "IndexName": "GSI",
+                        "KeySchema": [
+                            {
+                                "AttributeName": "address",
+                                "KeyType": "HASH"
+                            }
+                        ],
+                        "Projection": {
+                            "ProjectionType": "KEYS_ONLY"
+                        },
+                        "ProvisionedThroughput": {
+                            "ReadCapacityUnits": 5,
+                            "WriteCapacityUnits": 5
+                        }
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": 5,
+                    "WriteCapacityUnits": 5
+                }
+            }
         }
-      }
+    },
+    "Outputs": {
+        "DDBTable": {
+            "Value": {
+                "Ref": "DDBTable"
+            },
+            "Description": "DynamoDB Table Name."
+        }
     }
-  }
 }
