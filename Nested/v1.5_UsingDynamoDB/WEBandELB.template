@@ -29,10 +29,7 @@
             "Description": "LinuxBastionSecurityGroup?",
             "Type": "String"
         },
-        "RDSSecurityGroup": {
-            "Description": "RDSSecurityGroup?",
-            "Type": "String"
-        },
+
         "HTTPInstanceType": {
             "Description": "HTTPInstanceType?",
             "Type": "String"
@@ -69,14 +66,6 @@
                         "ToPort": "80",
                         "SourceSecurityGroupId": {
                             "Ref": "WebELBSecurityGroup"
-                        }
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "3306",
-                        "ToPort": "3306",
-                        "SourceSecurityGroupId": {
-                            "Ref": "RDSSecurityGroup"
                         }
                     }
                 ],
