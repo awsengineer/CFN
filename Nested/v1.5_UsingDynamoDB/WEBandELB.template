@@ -284,9 +284,7 @@
             "AWS::CloudFormation::Designer": {
                 "id": "49e307d1-ebca-4fe9-91e9-5a00556e114d"
             }
-        }
-    }
-},
+        },
 "Outputs": {
     "ELBAddress": {
         "Value": {
