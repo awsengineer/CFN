@@ -1,7 +1,6 @@
 #!/usr/bin/python34
 
 from htmltag import img, center
-import pymysql.cursors
 import cgi, cgitb
 
 # Create an instance of FieldStorage
@@ -30,7 +29,7 @@ print ("""
 <!DOCTYPE html>
 <html>
 <body>
-<meta HTTP-EQUIV="REFRESH" content="0; url=http:/cgi-bin/demo">
+<meta HTTP-EQUIV="REFRESH" content="0; url=/cgi-bin/demo">
 </body>
 </html>
 """)
