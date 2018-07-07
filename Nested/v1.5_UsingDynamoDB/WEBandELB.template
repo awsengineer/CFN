@@ -1,341 +1,309 @@
 {
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Parameters": {
-    "VPCID": {
-      "Description": "VPC ID:",
-      "Type": "AWS::EC2::VPC::Id"
-    },
-    "PublicSubnetA": {
-      "Description": "PublicSubnetA:",
-      "Type": "AWS::EC2::Subnet::Id"
-    },
-    "PublicSubnetB": {
-      "Description": "PublicSubnetB:",
-      "Type": "AWS::EC2::Subnet::Id"
-    },
-    "PrivateSubnetA": {
-      "Description": "PrivateSubnetA:",
-      "Type": "AWS::EC2::Subnet::Id"
-    },
-    "PrivateSubnetB": {
-      "Description": "PrivateSubnetB:",
-      "Type": "AWS::EC2::Subnet::Id"
-    },
-    "KeyPairName": {
-      "Description": "Key pair?",
-      "Type": "String"
-    },
-    "LinuxBastionSecurityGroup": {
-      "Description": "LinuxBastionSecurityGroup?",
-      "Type": "String"
-    },
-    "HTTPInstanceType": {
-      "Description": "HTTPInstanceType?",
-      "Type": "String"
-    },
-    "HTTPImageID": {
-      "Description": "HTTP Server EC2 ImageID?",
-      "Type": "String"
-    }
-  },
-  "Resources": {
-    "PrivateSecurityGroupBehindELB": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Allows SSH (for management), HTTP (for ELB) and also DynamoDB",
-        "VpcId": {
-          "Ref": "VPCID"
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "VPCID": {
+            "Description": "VPC ID:",
+            "Type": "AWS::EC2::VPC::Id"
         },
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "22",
-            "ToPort": "22",
-            "SourceSecurityGroupId": {
-              "Ref": "LinuxBastionSecurityGroup"
+        "PublicSubnetA": {
+            "Description": "PublicSubnetA:",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PublicSubnetB": {
+            "Description": "PublicSubnetB:",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PrivateSubnetA": {
+            "Description": "PrivateSubnetA:",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PrivateSubnetB": {
+            "Description": "PrivateSubnetB:",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "KeyPairName": {
+            "Description": "Key pair?",
+            "Type": "String"
+        },
+        "LinuxBastionSecurityGroup": {
+            "Description": "LinuxBastionSecurityGroup?",
+            "Type": "String"
+        },
+        "HTTPInstanceType": {
+            "Description": "HTTPInstanceType?",
+            "Type": "String"
+        },
+        "HTTPImageID": {
+            "Description": "HTTP Server EC2 ImageID?",
+            "Type": "String"
+        },
+        "DDBTable": {
+            "Description": "DynamoDB Table Name?",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "PrivateSecurityGroupBehindELB": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Allows SSH (for management), HTTP (for ELB) and also DynamoDB",
+                "VpcId": {
+                    "Ref": "VPCID"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "SourceSecurityGroupId": {
+                            "Ref": "LinuxBastionSecurityGroup"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "SourceSecurityGroupId": {
+                            "Ref": "WebELBSecurityGroup"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Createdby",
+                        "Value": "Mehdi"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "PrivateSecurityGroupBehindELB"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "680b7c42-5c45-4f4c-8568-09d41dea0082"
+                }
             }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "80",
-            "ToPort": "80",
-            "SourceSecurityGroupId": {
-              "Ref": "WebELBSecurityGroup"
+        },
+        "LaunchConfig1": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Properties": {
+                "InstanceType": {
+                    "Ref": "HTTPInstanceType"
+                },
+                "AssociatePublicIpAddress": "false",
+                "KeyName": {
+                    "Ref": "KeyPairName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "PrivateSecurityGroupBehindELB"
+                    }
+                ],
+                "ImageId": {
+                    "Ref": "HTTPImageID"
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe\n",
+                                "yum install wget -y\n",
+                                "wget https://raw.githubusercontent.com/awsengineer/CFN/master/Nested/v1.5_UsingDynamoDB/mycloudinit.sh -O /tmp/mycloudinit.sh\n",
+                                "chmod +x /tmp/mycloudinit.sh\n",
+                                "/tmp/mycloudinit.sh\n",
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "sed -i 's/table1/",
+                                            {
+                                                "Ref": "DDBTable"
+                                            },
+                                            "/' /var/www/cgi-bin/demo\n"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "sed -i 's/table1/",
+                                            {
+                                                "Ref": "DDBTable"
+                                            },
+                                            "/' /var/www/cgi-bin/insert.py\n"
+                                        ]
+                                    ]
+                                },
+                                "/opt/aws/bin/cfn-signal -e 0 --stack ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " --resource WebELB ",
+                                " --region ",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                "\n"
+                            ]
+                        ]
+                    }
+                }
             }
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "Createdby",
-            "Value": "Mehdi"
-          },
-          {
-            "Key": "Name",
-            "Value": "PrivateSecurityGroupBehindELB"
-          }
-        ]
-      },
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "680b7c42-5c45-4f4c-8568-09d41dea0082"
-        }
-      }
-    },
-    "LaunchConfig1": {
-      "Type": "AWS::AutoScaling::LaunchConfiguration",
-      "Properties": {
-        "InstanceType": {
-          "Ref": "HTTPInstanceType"
         },
-        "AssociatePublicIpAddress": "false",
-        "KeyName": {
-          "Ref": "KeyPairName"
-        },
-        "SecurityGroups": [
-          {
-            "Ref": "PrivateSecurityGroupBehindELB"
-          }
-        ],
-        "ImageId": {
-          "Ref": "HTTPImageID"
+        "Metadata": {
+            "AWS::CloudFormation::Designer": {
+                "id": "a5c58cfa-952c-45ab-953e-22a13f0c2787"
+            }
         }
-      },
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "a5c58cfa-952c-45ab-953e-22a13f0c2787"
-        }
-      }
     },
     "AutoScalingGroup1": {
-      "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "Properties": {
-        "VPCZoneIdentifier": [
-          {
-            "Ref": "PrivateSubnetA"
-          },
-          {
-            "Ref": "PrivateSubnetB"
-          }
-        ],
-        "MaxSize": "4",
-        "DesiredCapacity": "2",
-        "MinSize": "1",
-        "HealthCheckGracePeriod": "120",
-        "HealthCheckType": "ELB",
-        "LaunchConfigurationName": {
-          "Ref": "LaunchConfig1"
+        "Type": "AWS::AutoScaling::AutoScalingGroup",
+        "Properties": {
+            "VPCZoneIdentifier": [
+                {
+                    "Ref": "PrivateSubnetA"
+                },
+                {
+                    "Ref": "PrivateSubnetB"
+                }
+            ],
+            "MaxSize": "4",
+            "DesiredCapacity": "2",
+            "MinSize": "1",
+            "HealthCheckGracePeriod": "120",
+            "HealthCheckType": "ELB",
+            "LaunchConfigurationName": {
+                "Ref": "LaunchConfig1"
+            },
+            "Tags": [
+                {
+                    "Key": "Createdby",
+                    "Value": "Mehdi",
+                    "PropagateAtLaunch": "true"
+                },
+                {
+                    "Key": "Name",
+                    "Value": "AutoScalingGroup1",
+                    "PropagateAtLaunch": "true"
+                }
+            ],
+            "LoadBalancerNames": [
+                {
+                    "Ref": "WebELB"
+                }
+            ]
         },
-        "Tags": [
-          {
-            "Key": "Createdby",
-            "Value": "Mehdi",
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "Name",
-            "Value": "AutoScalingGroup1",
-            "PropagateAtLaunch": "true"
-          }
+        "DependsOn": [
+            "WebELB"
         ],
-        "LoadBalancerNames": [
-          {
-            "Ref": "WebELB"
-          }
-        ]
-      },
-      "DependsOn": [
-        "WebELB"
-      ],
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "307988ff-74cf-4aaa-ad9a-28d5b4741be9"
+        "Metadata": {
+            "AWS::CloudFormation::Designer": {
+                "id": "307988ff-74cf-4aaa-ad9a-28d5b4741be9"
+            }
         }
-      }
     },
     "WebELB": {
-      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "Properties": {
-        "Subnets": [
-          {
-            "Ref": "PublicSubnetA"
-          },
-          {
-            "Ref": "PublicSubnetB"
-          }
-        ],
-        "LoadBalancerName": "WebELB",
-        "CrossZone": "true",
-        "Scheme": "internet-facing",
-        "Listeners": [
-          {
-            "LoadBalancerPort": "80",
-            "InstancePort": "80",
-            "Protocol": "tcp"
-          }
-        ],
-        "HealthCheck": {
-          "Target": "tcp:80",
-          "HealthyThreshold": "10",
-          "UnhealthyThreshold": "8",
-          "Interval": "30",
-          "Timeout": "5"
+        "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+        "Properties": {
+            "Subnets": [
+                {
+                    "Ref": "PublicSubnetA"
+                },
+                {
+                    "Ref": "PublicSubnetB"
+                }
+            ],
+            "LoadBalancerName": "WebELB",
+            "CrossZone": "true",
+            "Scheme": "internet-facing",
+            "Listeners": [
+                {
+                    "LoadBalancerPort": "80",
+                    "InstancePort": "80",
+                    "Protocol": "tcp"
+                }
+            ],
+            "HealthCheck": {
+                "Target": "tcp:80",
+                "HealthyThreshold": "10",
+                "UnhealthyThreshold": "8",
+                "Interval": "30",
+                "Timeout": "5"
+            },
+            "SecurityGroups": [
+                {
+                    "Ref": "WebELBSecurityGroup"
+                }
+            ]
         },
-        "SecurityGroups": [
-          {
-            "Ref": "WebELBSecurityGroup"
-          }
-        ]
-      },
-      "CreationPolicy": {
-        "ResourceSignal": {
-          "Count": "1",
-          "Timeout": "PT10M"
+        "CreationPolicy": {
+            "ResourceSignal": {
+                "Count": "1",
+                "Timeout": "PT10M"
+            }
+        },
+        "DependsOn": [
+            "WebELBSecurityGroup"
+        ],
+        "Metadata": {
+            "AWS::CloudFormation::Designer": {
+                "id": "d40fc411-1f39-4064-9f0c-5e1f3b006690"
+            }
         }
-      },
-      "DependsOn": [
-        "WebELBSecurityGroup"
-      ],
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "d40fc411-1f39-4064-9f0c-5e1f3b006690"
-        }
-      }
     },
     "WebELBSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Allows HTTP",
-        "VpcId": {
-          "Ref": "VPCID"
-        },
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "80",
-            "ToPort": "80",
-            "CidrIp": "0.0.0.0/0"
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "Createdby",
-            "Value": "Mehdi"
-          },
-          {
-            "Key": "Name",
-            "Value": "WebELBSecurityGroup"
-          }
-        ]
-      },
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "49e307d1-ebca-4fe9-91e9-5a00556e114d"
-        }
-      }
-    }
-  },
-  "Outputs": {
-    "ELBAddress": {
-      "Value": {
-        "Fn::Join": [
-          "",
-          [
-            {
-              "Fn::GetAtt": [
-                "WebELB",
-                "DNSName"
-              ]
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+            "GroupDescription": "Allows HTTP",
+            "VpcId": {
+                "Ref": "VPCID"
             },
-            "/cgi-bin/ted"
-          ]
-        ]
-      },
-      "Description": "ELB public endpoint."
+            "SecurityGroupIngress": [
+                {
+                    "IpProtocol": "tcp",
+                    "FromPort": "80",
+                    "ToPort": "80",
+                    "CidrIp": "0.0.0.0/0"
+                }
+            ],
+            "Tags": [
+                {
+                    "Key": "Createdby",
+                    "Value": "Mehdi"
+                },
+                {
+                    "Key": "Name",
+                    "Value": "WebELBSecurityGroup"
+                }
+            ]
+        },
+        "Metadata": {
+            "AWS::CloudFormation::Designer": {
+                "id": "49e307d1-ebca-4fe9-91e9-5a00556e114d"
+            }
+        }
     }
-  },
-  "Metadata": {
-    "AWS::CloudFormation::Designer": {
-      "49e307d1-ebca-4fe9-91e9-5a00556e114d": {
-        "size": {
-          "width": 60,
-          "height": 60
+},
+"Outputs": {
+    "ELBAddress": {
+        "Value": {
+            "Fn::Join": [
+                "",
+                [
+                    {
+                        "Fn::GetAtt": [
+                            "WebELB",
+                            "DNSName"
+                        ]
+                    },
+                    "/cgi-bin/demo"
+                ]
+            ]
         },
-        "position": {
-          "x": 60,
-          "y": 90
-        },
-        "z": 1,
-        "embeds": []
-      },
-      "d40fc411-1f39-4064-9f0c-5e1f3b006690": {
-        "size": {
-          "width": 60,
-          "height": 60
-        },
-        "position": {
-          "x": 180,
-          "y": 90
-        },
-        "z": 1,
-        "embeds": [],
-        "ismemberof": [
-          "49e307d1-ebca-4fe9-91e9-5a00556e114d"
-        ],
-        "dependson": [
-          "49e307d1-ebca-4fe9-91e9-5a00556e114d"
-        ]
-      },
-      "680b7c42-5c45-4f4c-8568-09d41dea0082": {
-        "size": {
-          "width": 60,
-          "height": 60
-        },
-        "position": {
-          "x": 60,
-          "y": 210
-        },
-        "z": 1,
-        "embeds": [],
-        "isrelatedto": [
-          "49e307d1-ebca-4fe9-91e9-5a00556e114d"
-        ]
-      },
-      "a5c58cfa-952c-45ab-953e-22a13f0c2787": {
-        "size": {
-          "width": 60,
-          "height": 60
-        },
-        "position": {
-          "x": 180,
-          "y": 210
-        },
-        "z": 1,
-        "embeds": [],
-        "ismemberof": [
-          "680b7c42-5c45-4f4c-8568-09d41dea0082"
-        ]
-      },
-      "307988ff-74cf-4aaa-ad9a-28d5b4741be9": {
-        "size": {
-          "width": 60,
-          "height": 60
-        },
-        "position": {
-          "x": 300,
-          "y": 90
-        },
-        "z": 1,
-        "embeds": [],
-        "isconnectedto": [
-          "d40fc411-1f39-4064-9f0c-5e1f3b006690"
-        ],
-        "isassociatedwith": [
-          "a5c58cfa-952c-45ab-953e-22a13f0c2787"
-        ],
-        "dependson": [
-          "d40fc411-1f39-4064-9f0c-5e1f3b006690"
-        ]
-      }
+        "Description": "ELB public endpoint."
     }
-  }
+}
 }
