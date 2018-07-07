@@ -30,7 +30,7 @@ print ("""
 <!DOCTYPE html>
 <html>
 <body>
-<meta HTTP-EQUIV="REFRESH" content="0; url=http:/cgi-bin/ted">
+<meta HTTP-EQUIV="REFRESH" content="0; url=http:/cgi-bin/demo">
 </body>
 </html>
 """)
