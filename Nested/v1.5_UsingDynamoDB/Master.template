@@ -468,7 +468,7 @@
     "DynamoDBStack" : {
       "Type" : "AWS::CloudFormation::Stack",
       "Properties" : {
-        "TemplateURL" : "https://s3.amazonaws.com/mehdi100/mehdicfns/DynamoDB.template",
+        "TemplateURL" : "https://s3.amazonaws.com/mehdi100/mehdicfns/DynamoDB_Table.template",
         "TimeoutInMinutes" : "300"
       }
     },
