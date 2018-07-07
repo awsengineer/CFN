@@ -1,11 +1,9 @@
-
 #!/usr/bin/python34
 
 from htmltag import img, center
 from time import gmtime, strftime
 import subprocess
 import re
-import pymysql.cursors
 import boto3
 
 # Read all the DynamoDB table items into a cursor
@@ -94,4 +92,3 @@ print ("<br />")
 print ('</div>')
 print ('</body>')
 print ('</html>')
-db.close()
