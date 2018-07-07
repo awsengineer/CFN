@@ -15,7 +15,7 @@ address  = form.getvalue('address')
 import boto3
 
 dynamodb = boto3.resource('dynamodb',region_name='ap-southeast-1')
-table = dynamodb.Table('test-DynamoDBStack-B67ZSQ2FKLWX-DDBTable-B1GNHBVC9KP8')
+table = dynamodb.Table('table1')
 
 response = table.put_item(
    Item={
