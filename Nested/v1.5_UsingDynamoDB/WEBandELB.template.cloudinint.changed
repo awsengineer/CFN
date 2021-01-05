@@ -106,7 +106,7 @@
         },
         "UserData" : {
           "Fn::Base64" : {
-            "Fn::Join" : [ "", [ "#!/bin/bash -xe\n", "yum install wget -y\n", "wget https://raw.githubusercontent.com/awsengineer/CFN/master/Nested/v1.5_UsingDynamoDB/mycloudinit.sh -O /tmp/mycloudinit.sh\n", "chmod +x /tmp/mycloudinit.sh\n", "/tmp/mycloudinit.sh\n", {
+            "Fn::Join" : [ "", [ "#!/bin/bash -xe\n", "yum install wget -y\n", "wget s3://bucket1/mehdicfns/mycloudinit.sh -O /tmp/mycloudinit.sh\n", "chmod +x /tmp/mycloudinit.sh\n", "/tmp/mycloudinit.sh\n", {
               "Fn::Join" : [ "", [ "sed -i 's/table1/", {
                 "Ref" : "DDBTable"
               }, "/' /var/www/cgi-bin/demo\n" ] ]
